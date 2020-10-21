@@ -4,7 +4,6 @@ author: "Alberto J. Alaniz"
 date: "10/19/2020"
 output: 
    bookdown::pdf_document2:
-    fig.caption: yes
     toc: no
 bibliography: bibliog.bib
 ---
