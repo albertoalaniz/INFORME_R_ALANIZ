@@ -1,0 +1,206 @@
+---
+title: "Negative effect of alien plant cover on the native plant assemblages in mountain ecosystems: The case of El Morado Natural Monument, Chile"
+author: "Alberto J. Alaniz"
+date: "10/19/2020"
+output: 
+   bookdown::pdf_document2:
+    fig.caption: yes
+    toc: no
+bibliography: bibliog.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+
+library(bookdown)
+library(tidyverse)
+library(MuMIn)
+library(mgcv)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(ggpubr)
+library(tinytex)
+library(readr)
+library(rticles)
+
+DATA <-read.csv("https://raw.githubusercontent.com/albertoalaniz/presentacion_R/main/DATOS_INVASORAS_FINAL.csv")
+DATA$ALT <- as.factor(DATA$ALT)
+```
+
+
+# Introduction
+
+Biological invasions are considered one of the main drivers of biodiversity loss, by altering the ecological interactions in the colonized species assemblages [@Walsh4081]. Currently, a high proportion of global ecosystems are facing biological invasions that have produced a serious decline of native species due to ecological process such as competitive exclusion, predation, parasitism, among others [@Walsh4081; @Doherty11261]. On the other hand, biological invasion could also be affected by other components such as human induced disturbances and the structure/composition of the colonized species assemblage [@doi:10.1111/ele.13446]. Usually, ecological assemblages with a high diversity of species are capable to hinder the invasion that has ben named as “biotic resistance hypothesis” [@doi:10.1111/j.1461-0248.2005.00799.x]. Additionally, habitat degradation derived from climate change or land use and cover change that generates a decline on species diversity could benefit invasive species, generating a synergistic effect which accelerates biodiversity loss [@doi:10.1111/gcb.12344]. In this sense, some ecosystems that are facing these dynamics could be more prone to experience negative effects from biological invasions, being mountain ecosystems a good example of this [@doi:10.1111/j.1365-2486.2008.01709.x; @doi:10.1111/ddi.12963]. 
+
+Mountain ecosystems are characterized by a low diversity of plant species in comparison with other ecosystems such as forest and savannas, presenting a structural dominance of an herbaceous strata [@doi:10.1111/ddi.12963; @doi:10.1890/080072]. During the recent decades the sustained increase of global temperature have generated serious effects on mountain ecosystems [@RUIZ2008122; @ROGORA20181429]. Studies have suggested that altitude hinders the invasiveness of high mountain ecosystems, however climate change are predicted to benefit biological invasion by allowing invasive species to reach high altitudes [@doi:10.1890/080072]. This climatic pressure is summed to an increase on land use intensity, mainly associated with livestock that generates soil compaction and loss of vegetation cover [@vargas]. This increase on livestock derived disturbances also benefits invasive plants which have the capacity to thrive in degraded environments. These dynamics provides a dark panorama for the native species in Andean ecosystems, which could face a serious extinction threat due to the combined effect of climate change, land use pressure and invasive species. In this case, the presence of protected areas could be helpful to reduce the impact associated human disturbances, by conserving the most pristine reservoirs of this type of ecosystems and helping to preserve the propagules [@CUENCA201656]. However, within protected areas the excessive flow of visitors could represent an important source of ecosystem degradation, promoting the dispersal of alien species seeds and degrading the soil near to the trails [@Daniels2019]. Here we aim to evaluate the following question
+
+- What is the effect of alien species cover on the richness and diversity of native plants in mountain ecosystems?
+- What is the effect of altitude on the relationship between alien species and native plants?
+- There is other variables (shrubland, herbaceous cover, slope, distance to trails) modulating the diversity of native plants?
+
+
+# Materials and methods
+
+## Study area
+
+The present study was developed in the protected area El Morado Natural monument, located in the Metropolitan Region of Chile at 93 km eastern Santiago City. This unit has an area of 3009 ha with a mean altitude of 3200 meters above sea level. The dominant vegetation corresponds low height herbaceous and shrublands at its lower altitudes (~1800 masl), including species from the genus _Haplopappus_, _Alstroemeria_, _Chuquiraga_, _Berberis_, among others. A total of 236 natives plant species have been identified while 37 corresponds to alien species [@TEILLIER2003].
+
+## Data collection
+
+We generated five transepts separated by 100 m, each transept was composed by 6 plots of 2*2 meters located at both sides from the main trail of the protected area. The fist plot of each transept was located at 1 meter from each trial side, the second at 2 meters, the third at 4 meters, the fourth at 8 meters, the fifth at 16 meters and the sixth at 32 meters. This sample design aims to measure a gradient effect from the main trial. We replicated this sampling design at three different elevations (1980, 2110 and 2240 masl). The sites were sampled in September of 2018.
+
+In each plot two trained observers measured the slope and the coverage of herbs, shrublands and bare soil in percentage. We also measure the coverage of each native species as a _proxy_ for abundance, identifying the taxonomy of each one at least at genus level. Finally, we measure the coverage of alien species.
+
+We used _vegan_ package to calculate the rarefied species richness (Rich) and the Simpson diversity index (Shan) to characterize native plant assemblage [@vegan].
+
+
+## Data analysis
+
+We used Generalized Linear Model (GLM) to identify the variables contribution most to the variability in richness/diversity of native plants. We included as predictors the cover of alien plants (Inv), bare soil (BS), herbs (HEB), shrublands (SCH), as well as the slope (SLP), the distance to the trail (DIST) and the altitude (ALT).
+
+We used the Akaike Information Criterion corrected for small sample sized (AICc) to test for the significance of model predictors. The _dredge_ function from _MuMIn_ package was used to identify the best candidate models generated with all possible combinations of predictor variables [@MuMIn]. Models were selected considering Akaike weigts and AIC difference (Delta AIC) from the best model. Then we used the function _model.avg_ function from _MuMIn_ package to calculate the significance of each predictor (p-value) of each model-averaged coefficient [@MuMIn]. Finally, we used these averaged-coefficient and significance to analyze their effects on native plants.
+
+Main equations used in GLM:
+```{r, echo=TRUE, include=TRUE}
+
+M_Rich <- glm(Rich~ Inv + BS + HEB + SCH + SLP + DIST + ALT, 
+              family=gaussian(link = "identity"), data=DATA)
+
+Shannon <- glm(Shan~ Inv + BS + HEB + SCH + SLP + DIST + ALT, 
+               family=gaussian(link = "identity"), data=DATA)
+
+```
+
+# Results
+
+A total of 17 native plant genus were collected. We identified that genus richness of native plants was negatively associated with the cover of alien plants and positively associated with scrublands, herbaceous and bare soil cover (Figure \@ref(fig:figure1)). On the other hand, it was also positively associated with distance to trials (Table \@ref(tab:table1)). The best supported model (Delta AIC <2) included all variables except for altitude (Table \@ref(tab:table2)).
+
+
+```{r, include=FALSE}
+options(na.action = "na.fail") 
+Best_Rich<-dredge(M_Rich, rank= AICc)
+Best_Shan<-dredge(Shannon, rank= AICc)
+
+Best_Rich_t<-subset(Best_Rich, delta < 2); 
+Best_Rich_ta<-as.data.frame(Best_Rich_t)
+dd1<-Best_Rich_ta[,2:(which(colnames(Best_Rich_ta)=="df")-1) ]
+
+MoD<-c()
+for(g in 1:NROW(dd1)){
+  Line<-as.vector(dd1[g,]) 
+  xn<- which(is.na(Line))
+  if(NROW(xn)==0) {xn<-colnames(Line)} else {xn<-colnames(Line[-xn]) }
+  xn<- paste(xn, collapse= "+")
+  MoD<-c(MoD,xn)           }
+dd1<-cbind(MoD,Best_Rich_ta[,which(colnames(Best_Rich_ta)=="df"):which(colnames(Best_Rich_ta)=="weight")])
+
+
+if(NROW(Best_Rich_t)>1) {Coeff<-model.avg(Best_Rich_t)} else {Coeff<-model.avg(Best_Rich) }
+sum.coef_rich<- as.data.frame(summary(Coeff)$coefmat.subset)
+sum.coef_rich<- round(sum.coef_rich[-1,], 5); colnames(sum.coef_rich)[ncol(sum.coef_rich)]<-"pval"
+
+
+Shannon_t<-subset(Best_Shan, delta < 2); 
+Shannon_ta<-as.data.frame(Shannon_t)
+dd2<-Shannon_ta[,2:(which(colnames(Shannon_ta)=="df")-1) ]
+
+MoD<-c()
+for(g in 1:NROW(dd2)){
+  Line<-as.vector(dd2[g,]) 
+  xn<- which(is.na(Line))
+  if(NROW(xn)==0) {xn<-colnames(Line)} else {xn<-colnames(Line[-xn]) }
+  xn<- paste(xn, collapse= "+")
+  MoD<-c(MoD,xn)           }
+dd2<-cbind(MoD,Shannon_ta[,which(colnames(Shannon_ta)=="df"):which(colnames(Shannon_ta)=="weight")])
+
+
+if(NROW(Shannon_t)>1) {Coeff<-model.avg(Shannon_t)} else {Coeff<-model.avg(Best_Shan) }
+sum.coef_shan<- as.data.frame(summary(Coeff)$coefmat.subset)
+sum.coef_shan<- round(sum.coef_shan[-1,], 5); colnames(sum.coef_shan)[ncol(sum.coef_shan)]<-"pval"
+names(sum.coef_shan)
+
+```
+
+```{r table1,echo=F,warning=F,include=T}
+suppressMessages(sum.coef_rich %>% kable(caption = "Mean results for the Generalized Linear Model of native plants species richness. Predictor variables corresponds to cover of alien plants (Inv), bare soil (BS), herbs (HEB), shrublands (SCH), slope (SLP),  distance to the trail (DIST) and altitude (ALT)") %>% kable_styling(bootstrap_options = c("stripped","hover"),latex_options = "HOLD_position"))
+
+```
+```{r table2,echo=F,warning=F,include=T}
+suppressMessages(dd1 %>% kable(caption = "Best supported GLM for native plants richness (Delta AIC < 2). For variables abbreviation please see Table 1") %>% kable_styling(bootstrap_options = c("stripped","hover"),latex_options = "HOLD_position"))
+
+```
+
+## Effect of alien plants and habitat variables
+
+We identified a negative effect of alien species on plant genus diversity. On the other hand, a positive effect was identified for scrublands, herbaceous and bare soil cover in relation with plant diversity (Figure \@ref(fig:figure1)). We also identified a positive influence of elevations at 2240 m.a.s.l and 2110 m.a.s.l (Table \@ref(tab:table3)). The best supported model (Delta AIC <2) included all variables, presenting weight of 0.45 (Table \@ref(tab:table4)).
+
+```{r table3,echo=F,warning=F,include=T}
+suppressMessages(sum.coef_shan %>% kable(caption = "Mean results for the Generalized Linear Model of native plants Shannon diversity index. For variables abbreviation please see Table 1") %>% kable_styling(bootstrap_options = c("stripped","hover"),latex_options = "HOLD_position"))
+
+```
+
+```{r table4,echo=F,warning=F,include=T}
+suppressMessages(dd2 %>% kable(caption = "Best supported GLM for native plants diversity (Delta AIC < 2). For variables abbreviation please see Table 1") %>% kable_styling(bootstrap_options = c("stripped","hover"),latex_options = "HOLD_position"))
+
+```
+
+
+
+```{r, warning=FALSE, echo=FALSE, include=TRUE}
+
+suppressMessages(riq<- ggplot(DATA, aes(x = Inv, y = Rich)) +
+  geom_smooth(method = "lm", fill = "red", alpha = 0.5) +
+  geom_point()+
+  labs(y="Native plants richness", x="Invasive plants cover (%)"))
+
+suppressMessages(shano<- ggplot(DATA, aes(x = Inv, y = Shan)) +
+  geom_smooth(method = "lm", fill = "blue", alpha = 0.5) +
+  geom_point()+
+  labs(y="Diversity of native plants", x="Invasive plants cover (%)"))
+
+suppressMessages(arb<- ggplot(DATA, aes(x = SCH, y = Shan)) +
+  geom_smooth(method = "lm", fill = "Green", alpha = 0.5) +
+  geom_point()+
+  labs(y="Diversity of native plants", x="Schrubland cover (%)"))
+
+```
+
+
+```{r figure1, warning=FALSE, echo=FALSE, include=TRUE, fig.align='center', fig.cap= "A) native plant species richness in relation with invasive plant cover, B) Native plants Shannon diversity index in relation with invasive plant cover and, C) schrubland cover in relation with native plant Shannon diversity index"}
+suppressMessages(ggarrange(riq, shano, arb + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 3, nrow = 1))
+```
+
+## Effect of the altitude
+
+We found that at 1980 m.a.s.l is lower with a mean Shannon diversity index of 0.1, while at 2110 and 2240 m.a.s.l it reaches a mean of 0.86 and 1.13, respectively (Figure \@ref(fig:figure2)). On the other hand, at 1980 m.a.s.l alien species plant cover is high with a mean coverage of ~40%, while at 2110 and 2240 m.a.s.l if is significantly lower with a mean coverage of ~17.5% and 15%, respectively (Figure \@ref(fig:figure2)).
+
+```{r,  warning=FALSE, echo=FALSE, include=TRUE}
+
+suppressMessages(nat<- ggplot(DATA, aes(x = ALT, y = Shan)) + 
+  geom_jitter(aes(color = ALT)) +
+  geom_boxplot()+
+  labs(y="Diversity of native plants", x="Altitude"))
+
+suppressMessages(inva<- ggplot(DATA, aes(x = ALT, y = Inv)) + 
+  geom_jitter(aes(color = ALT)) +
+  geom_boxplot()+
+  labs(y="Alien plant cover (%)", x="Altitude"))
+
+```
+```{r, figure2, warning=FALSE, echo=FALSE, include=TRUE, fig.align='center', fig.cap= "A) native plant species diversity  and B) alien plant coverage for each analyzed altitude"}
+suppressMessages(ggarrange(nat, inva + rremove("x.text"), 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1))
+```
+
+
+# Discussions
+
+Here we found a strong negative interaction of alien species with the richness and diversity of native plants. Our results are consistent with previous studies that have evidenced the same pattern, which could be associated with competitive exclusion for area or resources [@doi:10.1890/080072; @BECKER2005173]. Elevation also was a factor that modulated the diversity of native plants, being negatively associated with alien plant coverages. This negative effect of elevation on alien plants have been identified in other mountain zones [@doi:10.1111/ddi.12963], which could be associates with a lower capacity of this new plants to colonize zones dominated by cold and snow during a significant proportion of the year [@doi:10.1890/080072]. Native plants were positively linked with scrublands species, which in this type of ecosystems corresponds woody species such as _Kageneckia angustifolia_. Previous studies in this region have identified that this type of woody vegetation offers a protection for the seed bank, allowing plants to survive winter reaching the flowering season [@PENALOZA2001; @doi:10.1046/j.1526-100X.2002.01022.x]. Finally, the positive association of the native plant diversity suggest that the trials generates a negative effect on them, this is related with movement of visitors 
+
+# References
